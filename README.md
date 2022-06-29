@@ -12,3 +12,15 @@ Scripts that will help regarding supporting SLB
 # Uso del script 
 
 `./cleandata.sh <FILE>`
+
+# Uso del script Reboot VM-healthcheck bash .sh
+
+`./diskcheck.sh <tenant>`
+
+# Uso del script Reboot ANY VM bash .sh
+
+`./rebootVM.sh <tenant> <vm_name>`
+
+# Uso del script Reboot VM-healthcheck powershell
+
+`./rebootVM.ps1 <tenant>`
