@@ -2,7 +2,7 @@
 
 server=$2
 tenant=$1
-token=$(cat token)
+token=$(gcloud auth print-access-token)
 
 currentStatus=$(curl -s -X GET "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/$tenant/vminstances/$server" -H "accept: application/json" -H "authorization: Bearer $token" | jq .status | sed 's/"//g') 
 
