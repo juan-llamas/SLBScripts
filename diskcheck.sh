@@ -2,7 +2,7 @@
 
 server="vm-healthcheck"
 tenant=$1
-token=$(cat token)
+token=$(gcloud auth print-access-token)
 
     ./rebootVM.sh $tenant $server
     sleep 30
