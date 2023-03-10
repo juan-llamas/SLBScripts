@@ -5,15 +5,20 @@ Scripts that will help regarding supporting SLB
 
 `cd SLBScripts`
 
-`chmod +x cleandata.sh`
+`chmod +x *.sh`
 
-* copiar la tabla en un archivo (no es relevante el nombre)
 
-# Uso del script 
+# tenantVM.sh Use
+
+`./tenantVM.sh <tenant>`
+
+* this script will create a file with the name of the tenant´s VMS, make sure you specified the tenant as an argument, will provided also with the total numbers of VMS.
+
+# Cleandata.sh Use
 
 `./cleandata.sh <FILE>`
 
-# Uso del script Reboot VM-healthcheck bash .sh
+# Reboot VM-healthcheck bash .sh Use
 
 `./diskcheck.sh <tenant>`
 
