@@ -5,7 +5,7 @@ import sys
 
 def main(argv):
     file_in= sys.argv[1]
-    file_out="report.csv"
+    file_out= "Format-" + file_in
     data = pd.read_csv(file_in)
     status = pd.DataFrame(['']*len(data))
     data.insert(1, 'Status', status)
