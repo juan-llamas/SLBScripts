@@ -10,7 +10,7 @@ def main(argv):
     status = pd.DataFrame(['']*len(data))
     data.insert(1, 'Status', status)
 
-    timestamp = data['timestamp']
+    timestamp = data['timestamp'].str[:19]
     project = data['jsonPayload.project']
     engagement = data['jsonPayload.engagementType']
     instance = data['jsonPayload.instance']
@@ -19,6 +19,8 @@ def main(argv):
     watchdog = data['jsonPayload.watchdogOperation']
     msg = data['jsonPayload.msg']
     message = data['jsonPayload.message']
+    
+    timestamp = timestamp.str[:10] + " " + timestamp.str[-8:]
 
     rows = zip(timestamp, project, engagement, instance, status, instanceStatus, watchdog, msg, message)
 
