@@ -10,7 +10,7 @@ def main(argv):
     status = pd.DataFrame(['']*len(data))
     data.insert(1, 'Status', status)
 
-    timestamp = data['timestamp']
+    timestamp = data['timestamp'].str[:10]
     project = data['jsonPayload.project']
     engagement = data['jsonPayload.engagementType']
     instance = data['jsonPayload.instance']
