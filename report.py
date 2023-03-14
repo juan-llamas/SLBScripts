@@ -1,16 +1,18 @@
+#!/usr/bin/env python3
 from pandas import *
 import pandas as pd
 import csv
 import sys
+from datetime import datetime
 
 def main(argv):
     file_in= sys.argv[1]
-    file_out= "Format-" + file_in
+    file_out= "Format-" + file_in 
     data = pd.read_csv(file_in)
     status = pd.DataFrame(['']*len(data))
     data.insert(1, 'Status', status)
 
-    timestamp = data['timestamp'].str[:19]
+    timestamp = data['timestamp']
     project = data['jsonPayload.project']
     engagement = data['jsonPayload.engagementType']
     instance = data['jsonPayload.instance']
@@ -19,15 +21,15 @@ def main(argv):
     watchdog = data['jsonPayload.watchdogOperation']
     msg = data['jsonPayload.msg']
     message = data['jsonPayload.message']
-    
-    timestamp = timestamp.str[:10] + " " + timestamp.str[-8:]
+
+    timestamp = (pd.to_datetime(timestamp)).dt.strftime('%e-%m-%EY %r')
 
     rows = zip(timestamp, project, engagement, instance, status, instanceStatus, watchdog, msg, message)
-
-    fields = ['DateTime', 'Tenant', 'Engagement Type', 'VM', 'Status', 'VM Status', 'Operation', 'Message', 'Error']
+  
+    headers = ['DateTime', 'Tenant', 'Engagement Type', 'VM', 'Status', 'VM Status', 'Operation', 'Message', 'Error']
     with open(file_out, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(fields)
+        writer.writerow(headers)
         for row in rows:
             writer.writerow(row)
 
