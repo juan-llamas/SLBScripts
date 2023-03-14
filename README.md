@@ -8,17 +8,17 @@ Scripts that will help regarding supporting SLB
 `chmod +x *.sh`
 
 
-# tenantVM.sh Use
+# Uso tenantVM.sh
 
 `./tenantVM.sh <tenant>`
 
 * this script will create a file with the name of the tenant´s VMS, make sure you specified the tenant as an argument, will provided also with the total numbers of VMS.
 
-# Cleandata.sh Use
+# Uso Cleandata.sh
 
 `./cleandata.sh <FILE>`
 
-# Reboot VM-healthcheck bash .sh Use
+# Use Reboot VM-healthcheck bash .sh
 
 `./diskcheck.sh <tenant>`
 
@@ -29,3 +29,11 @@ Scripts that will help regarding supporting SLB
 # Uso del script Reboot VM-healthcheck powershell
 
 `./rebootVM.ps1 <tenant>`
+
+# Uso del script report.py (descargar file csv de querys y correr mismo path script)
+
+`python3 report.py <file.csv>`
+
+# Uso del script reboot_vm.py (sin VM name la defautl VM es vm-healthcheck)
+
+`python3 reboot_vm.py <tenant> <optional vm name>`
