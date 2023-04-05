@@ -3,7 +3,7 @@ import sys
 import requests
 from subprocess import PIPE, Popen
 import time
-import msvcrt
+import json
 
 def cmdline(command):
     process = Popen(
@@ -28,14 +28,16 @@ def main(argv):
     headers = {"Authorization": "Bearer " + token}
     url_status = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + server
     
-
-    print('Press "q" key to exit\n')
-    while True:
-        if msvcrt.kbhit() and msvcrt.getwch()=='q':
-            break
-        current_status = requests.get(url_status, headers=headers)
-        print (f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nProgress: {current_status.json()["operationProgress"]}%\n')
-        time.sleep(10)
+    print("Press ctrl-c to stop")
+    loop_forever = True
+    while loop_forever:
+        try:
+            current_status = requests.get(url_status, headers=headers)
+            print (f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nProgress: {current_status.json()["operationProgress"]}%\n')
+            time.sleep(10)
+        except KeyboardInterrupt:
+            loop_forever = False
     print('Status execution exit()')    
+
 if __name__ == "__main__":
    main(sys.argv)
