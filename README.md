@@ -34,6 +34,16 @@ Scripts that will help regarding supporting SLB
 
 `python3 report.py <file.csv>`
 
-# Uso del script reboot_vm.py (sin VM name la defautl VM es vm-healthcheck)
+# Uso del script reboot_vm.py (sin VM name la default VM es vm-healthcheck)
 
 `python3 reboot_vm.py <tenant> <optional vm name>`
+
+# Uso del script status.py (sin VM name la default VM es vm-healthcheck)
+
+`python3 status.py <tenant> <optional vm name>`
+
+# TGX check
+
+`sudo /license/licserver status 
+shutdown -r now t
+he log is in /license/debug.log ./lmutil lmstat -a`
