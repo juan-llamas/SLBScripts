@@ -38,14 +38,14 @@ def main(argv):
             if  "message" in current_status.json():
                 banner(f'Error: {current_status.json()["message"]}')
                 time.sleep(10)
-            elif current_status.json()["name"] == 'ad-server' or current_status.json()["name"] == 'admirror-server' or current_status.json()["name"] == 'shared-storage' or current_status.json()["name"] == 'seismic-storage' or current_status.json()["name"] == 'license-server':
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}')
-                time.sleep(10)
             elif "operationProgress" in current_status.json():
                 banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nProgress: {current_status.json()["operationProgress"]}%')
                 time.sleep(10)
-            else:
+            elif "operation" in current_status.json():
                 banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nOperation: {current_status.json()["operation"]}')
+                time.sleep(10)
+            else:
+                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}')
                 time.sleep(10)
         except KeyboardInterrupt:
             loop_forever = False
