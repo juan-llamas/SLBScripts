@@ -18,6 +18,7 @@ def cmdline(command):
 
 def main(argv):  
     deploys = []
+    argv = sys.argv[1:]
     tenant = argv[0]
     token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
     headers = {"Authorization": "Bearer " + token}
