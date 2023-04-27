@@ -5,6 +5,7 @@ from subprocess import PIPE, Popen
 import time
 import json
 import re
+import os
 
 def cmdline(command):
     process = Popen(
@@ -14,38 +15,27 @@ def cmdline(command):
     )
     return process.communicate()[0]
 
-def banner(message, border='-'):
-    line = border * (len(message)-15)
-    print(line)
-    print(message)
-    print(line)
 
 def main(argv):  
-    argv = sys.argv[1:]
     deploys = []
-    if (len(argv)-1) < 1:
-        tenant = argv[0]
-        server = 'vm-healthcheck'
-    else:
-        tenant = argv[0]
-        server = argv[1]
+    tenant = argv[0]
     token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
     headers = {"Authorization": "Bearer " + token}
     url_deployments = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/deployments"
     deployments = ["ad-server","admirror-server","license-server","shared-storage","seismic-storage"]
-    current_status = requests.get(url_deployments, headers=headers)
+    current_deploys = requests.get(url_deployments, headers=headers)
 
-
-    for vm in current_status.json()["deployments"]:
-        if re.search("filesync", vm['name']) or vm['name'] in deployments:
+    for vm in current_deploys.json()["deployments"]:
+        if re.match(r"^filesync-(.+)", vm['name']) or vm['name'] in deployments:
             deploys.append(vm['name'])
+            url_script = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + vm['name']
+            command_var = requests.get(url_script, headers=headers)
+            if command_var.json()["isLinux"] is True:
+                os.system(f'gcloud compute ssh linuxadminuser@{command_var.json()["name"]} --command="pwd" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet')
  
     
     print(",".join(deploys))
     
-
-
-      
 
 if __name__ == "__main__":
    main(sys.argv)
