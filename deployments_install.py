@@ -34,28 +34,44 @@ def main(argv):
     token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
     headers = {"Authorization": "Bearer " + token}
     url_project = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant
-    deployments = ["ad-server","admirror-server","license-server","shared-storage","seismic-storage"]
     project = requests.get(url_project, headers=headers)
 
+    if project.json()["platform"] == "Google":
+        url_script = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + server
+        command_var = requests.get(url_script, headers=headers)
+        if command_var.json()["isLinux"] is True:
+            print(f'{server}')
+            border='-'
+            line = border * (80)
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_cert_repo}; {command_copy_in}; {command_copy_OA}; {command_install}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
+            print("C o p y i n g  p a c k a g e s . . .")
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_in}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
+            print(command)
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_OA}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
+            print(command)
+            print("I n s t a l l i n g . . .")
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_OA}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet ''')
+            print(command)
+            print(line)
+
     if project.json()["platform"] == "Azure":
-        if server in deployments:
-            url_script = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + server
-            command_var = requests.get(url_script, headers=headers)
-            if command_var.json()["isLinux"] is True:
-                print(f'{server}')
-                border='-'
-                line = border * (80)
-                command = os.system(f'az account set --subscription {tenant}')
-                command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_cert_repo}" ''')
-                print("C o p y i n g  p a c k a g e s . . .")
-                command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_copy_in}" ''')
-                print(command)
-                command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_copy_OA}" ''')
-                print(command)
-                print("I n s t a l l i n g . . .")
-                command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_install}" ''')
-                print(command)
-                print(line)
+        url_script = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + server
+        command_var = requests.get(url_script, headers=headers)
+        if command_var.json()["isLinux"] is True:
+            print(f'{server}')
+            border='-'
+            line = border * (80)
+            command = os.system(f'az account set --subscription {tenant}')
+            command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_cert_repo}" ''')
+            print("C o p y i n g  p a c k a g e s . . .")
+            command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_copy_in}" ''')
+            print(command)
+            command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_copy_OA}" ''')
+            print(command)
+            print("I n s t a l l i n g . . .")
+            command = os.system(f'''az vm run-command invoke -g {tenant} -n {server} --command-id RunShellScript --scripts "{command_install}" ''')
+            print(command)
+            print(line)
   
 
 if __name__ == "__main__":
