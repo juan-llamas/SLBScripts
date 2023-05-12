@@ -50,7 +50,7 @@ def main(argv):
             command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_OA}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
             print(command)
             print("I n s t a l l i n g . . .")
-            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_OA}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet ''')
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_install}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet ''')
             print(command)
             print(line)
 
