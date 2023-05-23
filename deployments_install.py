@@ -17,7 +17,6 @@ def cmdline(command):
 
 
 def main(argv):  
-    deploys = []
     argv = sys.argv[1:]
     tenant = argv[0]
     if (len(argv)-1) < 1:
@@ -59,7 +58,7 @@ def main(argv):
             print(f'{server}')
             border='-'
             line = border * (80)
-            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_cert_repo}; {command_copy_in}; {command_copy_OA}; {command_install}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
+            command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_cert_repo}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
             print("C o p y i n g  p a c k a g e s . . .")
             command = os.system(f'''gcloud compute ssh linuxadminuser@{server} --command="{command_copy_in_gcp}" --project={tenant} --zone={command_var.json()["zone"]} --tunnel-through-iap --quiet''')
             print(command)
@@ -68,8 +67,6 @@ def main(argv):
             print(command)
             print(line)
 
-
-  
 
 if __name__ == "__main__":
    main(sys.argv)
