@@ -2,10 +2,8 @@
 import sys
 import requests
 from subprocess import PIPE, Popen
-import time
 import json
-import re
-import os
+import csv
 
 def cmdline(command):
     process = Popen(
@@ -19,14 +17,21 @@ def cmdline(command):
 def main(argv):  
 
     file = open('tenants.txt', 'r')
+    exit_file = "domain.csv"
     tenants = file.readlines()
 
        
     token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
     headers = {"Authorization": "Bearer " + token}
 
+    headerList = ["Tenant", "Domain", "UserVMs", "UserQTY"]
+    with open(exit_file, 'w', newline='') as file2:
+            dw = csv.DictWriter(file2, delimiter=',',
+                        fieldnames=headerList)
+            dw.writeheader()
+
     print("Tenant,Domain,UserVMs,UserQTY")
-    
+
     for tenant in tenants:
         try:
             url_project = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant.strip()
@@ -38,9 +43,14 @@ def main(argv):
             number = len(instances.json()['instances'])
             user = len(users.json()['users'])
             var = project.json()["name"] + "," + project.json()["domain"] + "," + str(number) + ","  + str(user)
+            with open(exit_file,'a+') as file2:
+                file2.write(var + "\n")
             print(f'{var}')
         except Exception:
-            print(f'{tenant.strip() + ",Project Not Found"}')
+            error = f'{tenant.strip() + ",Project Not Found"}'
+            with open(exit_file,'a+') as file2:
+                file2.write(error + "\n")
+            print(f'{error}')
             continue
 
 
