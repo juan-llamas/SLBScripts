@@ -28,7 +28,11 @@ def main(argv):
                         print(i['vmInstanceName'])
                         print(i['email'])
                         validation=1
-                nextpagetoken = getuser['nextPageToken']
+                if (getuser['nextPageToken'] != ""):
+                    nextpagetoken = getuser['nextPageToken']
+                else:
+                    print(f'not coincidence for {vmname_user} on Tenant {tenant}')
+                    break
     else:
         try:
             getvm_url = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/users/" + vmname_user
