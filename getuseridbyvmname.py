@@ -28,9 +28,10 @@ def main(argv):
                         print(i['vmInstanceName'])
                         print(i['email'])
                         validation=1
-                if (getuser['nextPageToken'] != ""):
+                        break
+                if getuser['nextPageToken'] != "" :
                     nextpagetoken = getuser['nextPageToken']
-                else:
+                elif getuser['nextPageToken'] == "" and validation == 0:
                     print(f'not coincidence for {vmname_user} on Tenant {tenant}')
                     break
     else:
