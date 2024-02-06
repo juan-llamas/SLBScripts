@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import requests
-from subprocess import PIPE, Popen
+import os
 import json
 import csv
-
-def cmdline(command):
-    process = Popen(
-        args=command,
-        stdout=PIPE,
-        shell=True
-    )
-    return process.communicate()[0]
 
 def banner(message, border='-'):
     line = border * (len(message)-15)
@@ -19,35 +11,41 @@ def banner(message, border='-'):
     print(message)
     print(line)
 
-
 def main():  
+    # Check if the file path is provided as a command-line argument
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <file_path>")
+        sys.exit(1)
 
-    server = 'vm-healthcheck'
-    file = open('tenants.txt', 'r')
-    tenants = file.readlines()
+    file_path = sys.argv[1]
 
-       
-    token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
-    headers = {"Authorization": "Bearer " + token}
+    # Open the file and read each line
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
 
-    for tenant in tenants:
+    # Iterate through each line
+    for line in lines:
+        # Split the line by comma to separate tenant and server
+        tenant, server = line.strip().split(',')
+
+        token = os.popen("gcloud auth print-access-token").read().strip()
+        headers = {"Authorization": "Bearer " + token}
+
         try:
-            url_status = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant.strip() + "/vminstances/" + server
-            print(f'{tenant}')
-            current_status = requests.get(url_status, headers=headers)
-            if  "message" in current_status.json():
-                banner(f'Error: {current_status.json()["message"]}')            
-            elif "operationProgress" in current_status.json():
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nProgress: {current_status.json()["operationProgress"]}%')
-            elif "operation" in current_status.json():
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nOperation: {current_status.json()["operation"]}')
+            url_status = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant.strip() + "/vminstances/" + server.strip()
+            print(f'Tenant: {tenant}, Server: {server}')
+            current_status = requests.get(url_status, headers=headers).json()
+            if "message" in current_status:
+                banner(f'Error: {current_status["message"]}')            
+            elif "operationProgress" in current_status:
+                banner(f'VM name: {current_status["name"]}\nStatus: {current_status["status"]}\nProgress: {current_status["operationProgress"]}%')
+            elif "operation" in current_status:
+                banner(f'VM name: {current_status["name"]}\nStatus: {current_status["status"]}\nOperation: {current_status["operation"]}')
             else:
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}')
+                banner(f'VM name: {current_status["name"]}\nStatus: {current_status["status"]}')
         except Exception:
-            error = f'{tenant.strip() + ",Project Not Found"}'
+            error = f'{tenant.strip()},Project Not Found'
             banner(f'{error}')
-            continue
-
 
 if __name__ == "__main__":
    main()
