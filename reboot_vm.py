@@ -37,8 +37,12 @@ def main(argv):
         print (f'VM {server} is already {current_status.json()["status"]} state, proceeding to bring up...')
         requests.post(url_start, headers=headers)
         while current_status.json()['status'] != 'RUNNING':
-            current_status = requests.get(url_status, headers=headers)
-            print (f'{current_status.json()["operationProgress"]} %')
+            if current_status.json()['name'] == "ad-server" or current_status.json()['name'] == "admirror-server":
+                current_status = requests.get(url_status, headers=headers)
+                print (f'{current_status.json()["status"]}')
+            else:
+                current_status = requests.get(url_status, headers=headers)
+                print (f'{current_status.json()["operationProgress"]} %')
             time.sleep(15)
 
     elif current_status.json()['status'] != 'TERMINATED' or current_status.json()['status'] != 'CLOUD VM STATUS: PowerState/deallocated':
@@ -50,15 +54,20 @@ def main(argv):
         time.sleep(10)
         requests.post(url_start, headers=headers)
         while current_status.json()['status'] != 'RUNNING':
-            current_status = requests.get(url_status, headers=headers)
-            print (f'{current_status.json()["operationProgress"]} %')
+            if current_status.json()['name'] == "ad-server" or current_status.json()['name'] == "admirror-server":
+                current_status = requests.get(url_status, headers=headers)
+                print (f'{current_status.json()["status"]}')
+            else:
+                current_status = requests.get(url_status, headers=headers)
+                print (f'{current_status.json()["operationProgress"]} %')
             time.sleep(15)
         print (f'VM {server} ready...')
-       
-    print (f'VM {server} is already {current_status.json()["status"]} state, checking disks...')
-    disks_status = requests.get(url_disks, headers=headers)
+
+    if current_status.json()['name'] != "ad-server" or current_status.json()['name'] != "admirror-server":   
+        print (f'VM {server} is already {current_status.json()["status"]} state, checking disks...')
+        disks_status = requests.get(url_disks, headers=headers)
  
-    print (f'{server} rebooted. Drives mounted:\n {json.dumps(disks_status.json()["disks"], indent=2)}')
+        print (f'{server} rebooted. Drives mounted:\n {json.dumps(disks_status.json()["disks"], indent=2)}')
 
 if __name__ == "__main__":
    main(sys.argv)
