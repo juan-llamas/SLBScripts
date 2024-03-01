@@ -63,7 +63,7 @@ def main(argv):
             time.sleep(15)
         print (f'VM {server} ready...')
 
-    if current_status.json()['name'] != "ad-server" or current_status.json()['name'] != "admirror-server":   
+    elif current_status.json()['name'] != "ad-server" or current_status.json()['name'] != "admirror-server":   
         print (f'VM {server} is already {current_status.json()["status"]} state, checking disks...')
         disks_status = requests.get(url_disks, headers=headers)
  
