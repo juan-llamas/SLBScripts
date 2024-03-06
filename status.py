@@ -1,55 +1,64 @@
 #!/usr/bin/env python3
 import sys
 import requests
-from subprocess import PIPE, Popen
+import os
 import time
 import json
+import argparse
 
-def cmdline(command):
-    process = Popen(
-        args=command,
-        stdout=PIPE,
-        shell=True
-    )
-    return process.communicate()[0]
+# Constants
+SLEEP_INTERVAL = 10
+BASE_URL = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/"
 
 def banner(message, border='-'):
-    line = border * (len(message)-15)
+    line = border * len(message)
     print(line)
     print(message)
     print(line)
 
-def main(argv):  
-    argv = sys.argv[1:]
-    if (len(argv)-1) < 1:
-        tenant = argv[0]
-        server = 'vm-healthcheck'
+def get_access_token():
+    try:
+        return os.popen("gcloud auth print-access-token").read().strip()
+    except Exception as e:
+        print(f"Error retrieving access token: {e}")
+        sys.exit(1)
+
+def get_vm_status(tenant, server, headers):
+    url_status = f"{BASE_URL}{tenant}/vminstances/{server}"
+
+    try:
+        return requests.get(url_status, headers=headers).json()
+    except requests.RequestException as e:
+        print(f"Error making request: {e}")
+        return None
+
+def print_vm_status(status):
+    if "message" in status:
+        banner(f'Error: {status["message"]}')
+    elif "operationProgress" in status:
+        banner(f'VM name: {status["name"]}\nStatus: {status["status"]}\nProgress: {status["operationProgress"]}%\nCreated: {status["created"]}')
+    elif "operation" in status:
+        banner(f'VM name: {status["name"]}\nStatus: {status["status"]}\nOperation: {status["operation"]}\nCreated: {status["created"]}')
     else:
-        tenant = argv[0]
-        server = argv[1]
-    token = str(cmdline("gcloud auth print-access-token").decode( "utf-8" ).strip())
-    headers = {"Authorization": "Bearer " + token}
-    url_status = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances/" + server
+        banner(f'VM name: {status["name"]}\nStatus: {status["status"]}')
+
+def main():
+    parser = argparse.ArgumentParser(description='Check VM status.')
+    parser.add_argument('tenant', help='Tenant name')
+    parser.add_argument('server', nargs='?', default='vm-healthcheck', help='Server name (default: vm-healthcheck)')
+    args = parser.parse_args()
+
+    headers = {"Authorization": "Bearer " + get_access_token()}
+
     print("Press ctrl-c to stop\n")
-    loop_forever = True
-    while loop_forever:
-        try:
-            current_status = requests.get(url_status, headers=headers)
-            if  "message" in current_status.json():
-                banner(f'Error: {current_status.json()["message"]}')
-                time.sleep(10)
-            elif "operationProgress" in current_status.json():
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nProgress: {current_status.json()["operationProgress"]}%')
-                time.sleep(10)
-            elif "operation" in current_status.json():
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}\nOperation: {current_status.json()["operation"]}')
-                time.sleep(10)
-            else:
-                banner(f'VM name: {current_status.json()["name"]}\nStatus: {current_status.json()["status"]}')
-                time.sleep(10)
-        except KeyboardInterrupt:
-            loop_forever = False
-    print('Status execution exit()')    
+    try:
+        while True:
+            current_status = get_vm_status(args.tenant, args.server, headers)
+            if current_status:
+                print_vm_status(current_status)
+                time.sleep(SLEEP_INTERVAL)
+    except KeyboardInterrupt:
+        print('Status execution exit()')
 
 if __name__ == "__main__":
-   main(sys.argv)
+    main()
