@@ -19,14 +19,17 @@ def main(argv):
         writer = csv.writer(f)
         writer.writerow(headercsv)
     f.close()
+    print(','.join(headercsv))
     while validation == 0:
         instance_url = "https://p-pfs-slb-1-1bgapjz.uc.r.appspot.com/api/v1/projects/" + tenant + "/vminstances?nextPageToken=" + nextpagetoken
         instance_call = requests.get(instance_url, headers=headers).json()
-        print(','.join(headercsv))
         with open(file_out, 'a', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
             for instance in instance_call["instances"]:
-                line = operator.itemgetter("name", "userId", "status")(instance)
+                vm_name = instance.get("name", "")
+                user_id = instance.get("userId", "")  # Default value if 'userId' is missing
+                status = instance.get("status", "")    # Default value if 'status' is missing
+                line = [vm_name, user_id, status]
                 print(",".join(line))
                 writer.writerow(line)
         f.close()
